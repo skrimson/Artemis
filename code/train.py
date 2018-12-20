@@ -25,3 +25,5 @@ U.mkdir_p(out_dir)
 U.print_args(args)
 
 ####preparing data####
+
+from keras.preprocessing import sequence
