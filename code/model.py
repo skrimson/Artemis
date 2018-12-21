@@ -21,4 +21,4 @@ def create_model(args, maxlen, vocab):
     #####Sentence vector######
     e_w = word_emb(sentence_input)
     y_s = Average()(e_w)
-    
+    y_s = AverageWithTFIDF()(sentence_input, e_w)

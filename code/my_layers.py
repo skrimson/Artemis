@@ -85,5 +85,3 @@ class Average(Layer):
             mask = K.expand_dims(mask)
             x = x * mask
         return K.sum(x, axis=-2) / K.sum(mask, axis=-2)
-
-class AverageWithTFIDF(Layer):

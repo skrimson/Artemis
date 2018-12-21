@@ -37,7 +37,7 @@ def get_vocab(domain, maxlen=0, vocab_size=0):
         print('using {} words most frequent'.format(vocab_size))
 
     #writing (word, frequence) to a file #no need
-    vocab_file = codecs.open('../preprocessed_data/'+domain+'/vocab', mode='w', encoding='utf-8')
+    vocab_file = codecs.open('../preprocessed_data/'+domain+'/vocab_freq', mode='w', encoding='utf-8')
     sorted_vocab = sorted(vocab.items(), key=operator.itemgetter(1))
     for word, index in sorted_vocabs:
         if index < 3:
@@ -59,8 +59,8 @@ def get_data(domain, phase, vocab, maxlen=0):
     maxlen_x = 0
     data_x = []
 
-    fin = codecs.open(source, 'r', 'utf-8')
-    for line in fin:
+    source_txt = codecs.open(source, 'r', 'utf-8')
+    for line in source_txt:
         words = line.strip().split()
         if maxlen > 0 and len(words) > maxlen:
             continue
