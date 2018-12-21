@@ -1,11 +1,15 @@
-import logging
 import argparse
+import logging
+import numpy as np
+from time import time
+import utils as U
+import codecs
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 ####parsing arguments####
-parser = argParse.ArgumentParser()
+parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--out-dir", dest="out_dir_path", type=str, metavar='<str>', required=True, help="Path to the output")
 parser.add_argument("-e", "--embdim", dest="emb_dim", type=int, metavar='<int>', default=200, help="Embeddings dimension (default=200)")
 parser.add_argument("-b", "--batch-size", dest="batch_size", type=int, metavar='<int>', default=50, help="Batch size (default=50)")
@@ -24,13 +28,13 @@ out_dir = args.out_dir_path + '/' + args.domain
 U.mkdir_p(out_dir)
 U.print_args(args)
 
-####preparing data####
+####Preparing Data########################################
 
 from keras.preprocessing import sequence
-import data as data
+import data as dataset
 
 #importing vocabs
-vocab = data.get_vocab(args.domain, maxlen=args.maxlen vocab_size=args.vocab_size)
+vocab, vocab_idf = dataset.get_vocab(args.domain, maxlen=args.maxlen, vocab_size=args.vocab_size)
 #vocabulary with noun only
 
 #train, test data
@@ -38,8 +42,8 @@ train_x, train_max_len = dataset.get_data(args.domain, phase = 'train', vocab=vo
 test_x, test_max_len = dataset.get_data(args.domain, phase = 'test', vocab=vocab, maxlen=args.maxlen)
 overall_maxlen = max(train_max_len, test_max_len)
 
-train_x = sequence.padding_sequences(train_x, maxlen=overall_maxlen)
-test_x = sequence.padding_sequences(test_x, maxlen_x=overall_maxlen)
+train_x = sequence.pad_sequences(train_x, maxlen=overall_maxlen)
+test_x = sequence.pad_sequences(test_x, maxlen=overall_maxlen)
 
 print('{} training examples'.format(len(train_x)))
 print('Length of vocab: {}'.format(len(vocab)))
@@ -48,17 +52,16 @@ print('Length of vocab: {}'.format(len(vocab)))
 from optimizers import get_optimizer
 optimizer = get_optimizer(args)
 
-####building model#####
+####Building Model########################################
 from model import create_model
 import keras.backend as K
 
 logger.info('  Building model')
 
-
 def max_margin_loss(y_true, y_pred):
     return K.mean(y_pred)
 
-model = create_model(args, overall_maxlen, vocab)
+model = create_model(args, overall_maxlen, vocab, vocab_idf)
 # freeze the word embedding layer, because using pre-trained word embeddings
 model.get_layer('word_emb').trainable=False
 model.compile(optimizer=optimizer, loss=max_margin_loss, metrics=[max_margin_loss])
