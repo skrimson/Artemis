@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 ####parsing arguments####
 parser = argparse.ArgumentParser()
+parser.add_argument("-ex", "--aspect-examples", dest="aspect_examples", type=str, metavar='<str>', nargs='*', required=True, help="aspect examples to be initialized")
 parser.add_argument("-o", "--out-dir", dest="out_dir_path", type=str, metavar='<str>', required=True, help="Path to the output")
 parser.add_argument("-e", "--embdim", dest="emb_dim", type=int, metavar='<int>', default=200, help="Embeddings dimension (default=200)")
 parser.add_argument("-b", "--batch-size", dest="batch_size", type=int, metavar='<int>', default=50, help="Batch size (default=50)")
@@ -56,12 +57,12 @@ optimizer = get_optimizer(args)
 from model import create_model
 import keras.backend as K
 
-logger.info('  Building model')
+logger.info('  Building model with {} as aspect initialization'.format(args.aspect_examples))
 
 def max_margin_loss(y_true, y_pred):
     return K.mean(y_pred)
 
-model = create_model(args, overall_maxlen, vocab, vocab_idf)
+model = create_model(args, overall_maxlen, vocab)
 # freeze the word embedding layer, because using pre-trained word embeddings
 model.get_layer('word_emb').trainable=False
 model.compile(optimizer=optimizer, loss=max_margin_loss, metrics=[max_margin_loss])

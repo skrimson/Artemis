@@ -8,7 +8,7 @@ import numpy as np
 class Attention(Layer):
     def __init__(self, W_regularizer=None, b_regularizer=None,
                  W_constraint=None, b_constraint=None,
-                 bias=True):
+                 bias=True, **kwargs):
         """
         Keras Layer that implements an Content Attention mechanism.
         Supports Masking.
@@ -22,6 +22,7 @@ class Attention(Layer):
         self.b_constraint = constraints.get(b_constraint)
 
         self.bias = bias
+        super(Attention, self).__init__(**kwargs)
 
     def build(self, input_shape):
         assert type(input_shape) == list
@@ -42,7 +43,6 @@ class Attention(Layer):
                                      name='{}_b'.format(self.name),
                                      regularizer=self.b_regularizer,
                                      constraint=self.b_constraint)
-        super(MyLayer, self).build(input_shape)
 
     def call(self, input_tensor, mask=None):
         #e_w
