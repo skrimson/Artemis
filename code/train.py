@@ -49,7 +49,30 @@ test_x = sequence.pad_sequences(test_x, maxlen=overall_maxlen)
 print('{} training examples'.format(len(train_x)))
 print('Length of vocab: {}'.format(len(vocab)))
 
-####optimizer algorithm####
+def sentence_batch_generator(data, batch_size):
+    n = len(data) / batch_size
+    batch_count = 0
+    np.random.shuffle(data)
+
+    while True:
+        if batch_count == n:
+            np.random.shuffle(data)
+            batch_count = 0
+
+        batch = data[batch_count*batch_size: (batch_count+1)*batch_size]
+        batch_count += 1
+        yield batch
+
+def negative_batch_generator(data, batch_size, neg_size):
+    data_len = data.shape[0]
+    dim = data.shape[1]
+
+    while True:
+        indices = np.random.choice(data_len, batch_size * neg_size)
+        neg_samples = data[indices].reshape(batch_size, neg_size, dim)
+        yield neg_samples
+
+####Optimizer Algorithm###################################
 from optimizers import get_optimizer
 optimizer = get_optimizer(args)
 
@@ -66,3 +89,61 @@ model = create_model(args, overall_maxlen, vocab)
 # freeze the word embedding layer, because using pre-trained word embeddings
 model.get_layer('word_emb').trainable=False
 model.compile(optimizer=optimizer, loss=max_margin_loss, metrics=[max_margin_loss])
+
+#####Training#############################################
+from keras.models import load_model
+from tqdm import tqdm
+
+logger.info('--------------------------------------------------------------------------------------------------------------------------')
+
+vocab_inv = {}
+for w, ind in vocab.items():
+    vocab_inv[ind] = w
+
+batches_per_epoch = 1000
+min_loss = float('inf')
+
+for epoch in range(args.epochs):
+    t0 = time()
+    loss, max_margin_loss = 0., 0.
+
+    sentence_generator = sentence_batch_generator(train_x, args.batch_size)
+    negative_generator = negative_batch_generator(train_x, args.batch_size, args.neg_size)
+
+    for batch in tqdm(range(batches_per_epoch)):
+        sen_input = sentence_generator.__next__()
+        neg_input = negative_generator.__next__()
+
+        batch_loss, batch_max_margin_loss = model.train_on_batch([sen_input, neg_input], np.ones((args.batch_size, 1)))
+        loss += batch_loss / batches_per_epoch
+        max_margin_loss += batch_max_margin_loss / batches_per_epoch
+
+    tr_time = time() - t0
+
+    if loss < min_loss:
+        min_loss = loss
+        word_emb = np.asarray(model.get_layer('word_emb').get_weights())
+        word_emb = word_emb.reshape(word_emb.shape[1], word_emb.shape[2])
+        aspect_emb = np.asarray(model.get_layer('aspect_emb').get_weights())
+        aspect_emb = aspect_emb.reshape(aspect_emb.shape[1], aspect_emb.shape[2])
+        word_emb = word_emb / np.linalg.norm(word_emb, axis=-1, keepdims=True)
+        aspect_emb = aspect_emb / np.linalg.norm(aspect_emb, axis=-1, keepdims=True)
+        aspect_file = codecs.open(out_dir+'/aspect.log', 'w', 'utf-8')
+        model.save_weights(out_dir+'/model_param')
+
+        #arranging words similar to aspect
+        for i in range(len(aspect_emb)):
+            aspect = aspect_emb[i]
+            similarity = word_emb.dot(aspect.T)
+            ordered_words = np.argsort(similarity)[::-1]
+            word_list = [vocab_inv[w] for w in ordered_words[:100]]
+            print('Aspect ({}):'.format(args.aspect_examples[i]))
+            print(word_list)
+            aspect_file.write('Aspect ({}):\n'.format(args.aspect_examples[i]))
+            aspect_file.write(' '.join(word_list) + '\n\n')
+
+    logger.info('Epoch %d, train: %is' % (epoch, tr_time))
+    logger.info('Total loss: %.4f, max_margin_loss: %.4f, ortho_reg: %.4f' % (loss, max_margin_loss, loss-max_margin_loss))
+
+    sentence_generator.close()
+    negative_generator.close()
