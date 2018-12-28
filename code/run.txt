@@ -3,3 +3,4 @@
 python train.py --emb ../preprocessed_data/restaurant/w2v_embedding --domain restaurant -o output_dir -ex food service price atmosphere
 
 ####evaluation#####
+python evaluation.py --domain restaurant -o output_dir -ex food service price atmoshphere

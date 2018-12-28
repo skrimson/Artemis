@@ -8,6 +8,7 @@ import codecs
 
 #####Parsing Arguments#######
 parser = argparse.ArgumentParser()
+parser.add_argument("-ex", "--aspect-examples", dest="aspect_examples", type=str, metavar='<str>', nargs='*', required=True, help="aspect examples to be initialized")
 parser.add_argument("-o", "--out-dir", dest="out_dir_path", type=str, metavar='<str>', required=True, help="The path to the output directory")
 parser.add_argument("-e", "--embdim", dest="emb_dim", type=int, metavar='<int>', default=200, help="Embeddings dimension (default=200)")
 parser.add_argument("-b", "--batch-size", dest="batch_size", type=int, metavar='<int>', default=50, help="Batch size (default=50)")
@@ -26,13 +27,17 @@ args = parser.parse_args()
 out_dir = args.out_dir_path + '/' + args.domain
 U.print_args(args)
 
-from keras.processing import sequence
+from keras.preprocessing import sequence
 import data as dataset
+
+#######importing vocab###########
+vocab, vocab_idf = dataset.get_vocab(args.domain, maxlen=args.maxlen, vocab_size=args.vocab_size)
 
 #######Getting Test Data##########
 test_x, test_max_len = dataset.get_data(args.domain, phase = 'test', vocab=vocab, maxlen=args.maxlen)
+max_len = test_max_len
 
-test_x = sequence.pad_sequences(test_x, maxlen=test_max_len)
+test_x = sequence.pad_sequences(test_x, maxlen=max_len)
 
 ######Building Model##############
 from model import create_model
@@ -43,7 +48,7 @@ optimizer = get_optimizer(args)
 
 def max_margin_loss(y_true, y_pred):
     return K.mean(y_pred)
-model = create_model(args, overall_maxlen, vocab)
+model = create_model(args, max_len, vocab)
 
 ## Load the save model parameters
 print("------loading model parameters------")
@@ -109,7 +114,7 @@ for c in range(len(test_x)):
     word_inds = [i for i in test_x[c] if i!=0]
     line_len = len(word_inds)
     weights = att_weights[c]
-    weights = weights[(overall_maxlen-line_len):]
+    weights = weights[(max_len-line_len):]
 
     words = [vocab_inv[i] for i in word_inds]
     att_out.write(' '.join(words) + '\n')
@@ -120,7 +125,6 @@ print("-----output finished------")
 
 ########F scores###########
 cluster_map = {0: 'Food', 1: 'service', 2: 'price', 3: 'atmosphere'}
-
 
 print('--- Results on %s domain ---' % (args.domain))
 test_labels = '../preprocessed_data/%s/test_label.txt' % (args.domain)
