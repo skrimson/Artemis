@@ -1,6 +1,6 @@
 
 ####training#####
-python train.py --emb ../preprocessed_data/restaurant/w2v_embedding --domain restaurant -o output_dir -ex food service price atmosphere
+python train.py --emb ../preprocessed_data/restaurant/w2v_embedding --domain restaurant -o output_dir -ex beef champagne gelato waiter price atmosphere
 
 ####evaluation#####
-python evaluation.py --domain restaurant -o output_dir -ex food service price atmoshphere
+python evaluation.py --domain restaurant -o output_dir -ex beef champagne gelato waiter price atmosphere
