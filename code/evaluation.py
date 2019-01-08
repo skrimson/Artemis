@@ -70,7 +70,7 @@ def evaluation(true, predict, domain):
             true_label.append(line.strip())
 
         print(classification_report(true_label, predict_label,
-            ['Food', 'Staff', 'Ambience', 'Anecdotes', 'Price', 'Miscellaneous'], digits=3))
+            ['Food', 'Staff', 'Ambience', 'Price'], digits=3))
 
     else:
         for line in predict:
@@ -102,6 +102,7 @@ for w, ind in vocab.items():
 
 test_fn = K.function([model.get_layer('sentence_input').input, K.learning_phase()],
         [model.get_layer('att_weights').output, model.get_layer('p_t').output])
+#weights for each word, weights for each aspect
 att_weights, aspect_probs = test_fn([test_x, 0])
 
 ###### Save attention weights on test sentences into a file
@@ -124,8 +125,8 @@ for c in range(len(test_x)):
 print("-----output finished------")
 
 ########F scores###########
-cluster_map = {0: 'Food', 1: 'service', 2: 'price', 3: 'atmosphere'}
+cluster_map = {0: 'Food', 1: 'Food', 2: 'Food', 3: 'Staff', 4: 'Ambience', 5:'Price'}
 
-print('--- Results on %s domain ---' % (args.domain))
-test_labels = '../preprocessed_data/%s/test_label.txt' % (args.domain)
+print('--- Results on %s domain ---'.format(args.domain))
+test_labels = '../preprocessed_data/' + args.domain + '/test_label.txt'
 prediction(test_labels, aspect_probs, cluster_map, domain=args.domain)

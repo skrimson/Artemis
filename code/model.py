@@ -52,7 +52,9 @@ def create_model(args, maxlen, vocab):
         from emb_reader import EmbeddingReader as EmbeddingReader
         emb_reader = EmbeddingReader(args.emb_path, emb_dim=args.emb_dim)
         logger.info('Initializing word embedding matrix')
+        print("word_emb_shape:{}".format(np.asarray(model.get_layer('word_emb').get_weights()).shape))
         model.get_layer('word_emb').set_weights(emb_reader.get_word_emb(vocab, model.get_layer('word_emb').get_weights())[np.newaxis,:,:])
         logger.info('Initializing aspect embedding from {}'.format(args.aspect_examples))
+        print("aspect_emb_shape:{}".format(np.asarray(model.get_layer('aspect_emb').get_weights()).shape))
         model.get_layer('aspect_emb').set_weights(emb_reader.get_aspect_emb(args.aspect_examples)[np.newaxis,:,:])
     return model

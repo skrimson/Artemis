@@ -49,7 +49,7 @@ class EmbeddingReader:
         aspect_embs = []
         for word in aspect_words:
             aspect_embs.append(self.embeddings[word])
-        aspect_embs = np.asarray(aspect_embs).reshape(len(aspect_words), self.emb_dim)
+        aspect_embs = np.asarray(aspect_embs)
         normalized_aspect_embs =  aspect_embs / np.linalg.norm(aspect_embs, axis=-1, keepdims=True)
 
         return normalized_aspect_embs
