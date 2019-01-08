@@ -4,7 +4,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 import codecs
 
 def parseSentence(line):
-    lmtzr = WordNetLemmatizer()    
+    lmtzr = WordNetLemmatizer()
     stop = stopwords.words('english')
     text_token = CountVectorizer().build_tokenizer()(line.lower())
     text_rmstop = [i for i in text_token if i not in stop]
@@ -21,7 +21,7 @@ def preprocess_train(domain):
             out.write(' '.join(tokens)+'\n')
 
 def preprocess_test(domain):
-    # For restaurant domain, only keep sentences with single 
+    # For restaurant domain, only keep sentences with single
     # aspect label that in {Food, Staff, Ambience}
 
     f1 = codecs.open('../datasets/'+domain+'/test.txt', 'r', 'utf-8')
@@ -39,13 +39,11 @@ def preprocess_test(domain):
             out2.write(label+'\n')
 
 def preprocess(domain):
-    print '\t'+domain+' train set ...'
+    print('\t'+domain+' train set ...')
     preprocess_train(domain)
-    print '\t'+domain+' test set ...'
+    print('\t'+domain+' test set ...')
     preprocess_test(domain)
 
-print 'Preprocessing raw review sentences ...'
+print('Preprocessing raw review sentences ...')
 preprocess('restaurant')
 preprocess('beer')
-
-
