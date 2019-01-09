@@ -125,8 +125,12 @@ for c in range(len(test_x)):
 print("-----output finished------")
 
 ########F scores###########
-cluster_map = {0: 'Food', 1: 'Food', 2: 'Food', 3: 'Staff', 4: 'Ambience', 5:'Price'}
+cluster_map_r = {0: 'Food', 1: 'Food', 2: 'Food', 3: 'Staff', 4: 'Ambience', 5:'Price'}
+cluster_map_b = {0: 'feel', 1: 'taste', 2: 'smell', 3: 'look', 4: 'overall'}
 
 print('--- Results on %s domain ---'.format(args.domain))
 test_labels = '../preprocessed_data/' + args.domain + '/test_label.txt'
-prediction(test_labels, aspect_probs, cluster_map, domain=args.domain)
+if args.domain == 'restaurant':
+    prediction(test_labels, aspect_probs, cluster_map_r, domain=args.domain)
+elif args.domain == 'beer':
+    prediction(test_labels, aspect_probs, cluster_map_b, domain=args.domain)
