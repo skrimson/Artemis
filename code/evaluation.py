@@ -128,7 +128,7 @@ for c in range(len(test_x)):
 print("-----output finished------")
 
 ########F scores###########
-cluster_map_r = {0: 'Food', 1: 'Food', 2: 'Food', 3: 'Staff', 4: 'Ambience', 5:'Price'}
+cluster_map_r = {0: 'Food', 1: 'Food', 2: 'Food', 3: 'Staff', 4: 'Ambience', 5:'Ambience'}
 cluster_map_b = {0: 'feel', 1: 'taste', 2: 'smell', 3: 'look', 4: 'overall'}
 
 print('--- Results on %s domain ---'.format(args.domain))
