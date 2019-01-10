@@ -60,11 +60,13 @@ model.compile(optimizer=optimizer, loss=max_margin_loss, metrics=[max_margin_los
 def evaluation(true, predict, domain):
     true_label = []
     predict_label = []
+    predict_out = codecs.open(out_dir + '/predicted_label.txt', 'w', 'utf-8')
 
     if domain == 'restaurant':
 
         for line in predict:
             predict_label.append(line.strip())
+            predict_out.write(line.strip()+'\n')
 
         for line in true:
             true_label.append(line.strip())
@@ -78,6 +80,7 @@ def evaluation(true, predict, domain):
             if label == 'smell' or label == 'taste':
               label = 'taste+smell'
             predict_label.append(label)
+            predict_out.write(label+'\n')
 
         for line in true:
             label = line.strip()
