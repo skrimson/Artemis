@@ -103,10 +103,10 @@ vocab_inv = {}
 for w, ind in vocab.items():
     vocab_inv[ind] = w
 
-test_fn = K.function([model.get_layer('sentence_input').input, K.learning_phase()],
+test_fn = K.function([model.get_layer('sentence_input').input],
         [model.get_layer('att_weights').output, model.get_layer('p_t').output])
 #weights for each word, weights for each aspect
-att_weights, aspect_probs = test_fn([test_x, 0])
+att_weights, aspect_probs = test_fn([test_x])
 
 ###### Save attention weights on test sentences into a file
 att_out = codecs.open(out_dir + '/att_weights', 'w', 'utf-8')

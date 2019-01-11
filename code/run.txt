@@ -1,8 +1,8 @@
 
 ####training#####
-python train.py --emb ../preprocessed_data/restaurant/w2v_embedding --domain restaurant -o output_dir -ex food wine dessert service price atmosphere
+python train.py --emb ../preprocessed_data/restaurant/w2v_embedding --domain restaurant -o output_dir -ex food wine dessert service atmosphere decor
 python train.py --emb ../preprocessed_data/beer/w2v_embedding --domain beer -o output_dir -ex mouthfeel taste smell orange beer
 
 ####evaluation#####
-python evaluation.py --domain restaurant -o output_dir -ex food wine dessert service price atmosphere
+python evaluation.py --domain restaurant -o output_dir -ex food wine dessert service atmosphere decor
 python evaluation.py --domain beer -o output_dir -ex mouthfeel taste smell orange beer
