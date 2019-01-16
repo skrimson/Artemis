@@ -136,7 +136,7 @@ for epoch in range(args.epochs):
             aspect = aspect_emb[i]
             similarity = word_emb.dot(aspect.T)
             ordered_words = np.argsort(similarity)[::-1]
-            word_list = [vocab_inv[w] for w in ordered_words[:100]]
+            word_list = [vocab_inv[w] for w in ordered_words[:300]]
             print('Aspect ({}):'.format(args.aspect_examples[i]))
             print(word_list)
             aspect_file.write('Aspect ({}):\n'.format(args.aspect_examples[i]))
